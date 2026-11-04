@@ -1,0 +1,30 @@
+stateDiagram
+    state "Обнаружено нарушение" as Detected
+    state "Кандидаты: минимальные изменения" as Candidates
+    state "Прошло валидацию" as Validated
+    state "Нет валидного варианта" as Rejected
+    state "Удержание нового варианта" as Held
+    state "Уведомление отправлено" as Notified
+    state "Принято пользователем или авто" as Accepted
+    state "Истекло время / нет ответа" as Expired
+    state "Новый вариант забронирован" as NewBooked
+    state "Старая бронь отменена" as OldCancelled
+    state "Компенсация" as Compensating
+    state "Согласовано" as Reconciled
+
+    [*] --> Detected: событие о нарушении
+    Detected --> Candidates: генерация вариантов
+    Candidates --> Validated: валидатор ограничений
+    Validated --> Rejected: валидных нет
+    Rejected --> [*]: уведомить / ручная обработка
+    Validated --> Held: удержан у провайдера
+    Held --> Notified: маршрутизация уведомления
+    Notified --> Accepted: пользователь принял / авто-согласие
+    Notified --> Expired: таймаут / нет ответа
+    Expired --> [*]: снять удержание
+    Accepted --> NewBooked: бронируем новый вариант
+    NewBooked --> OldCancelled: отменяем старую бронь
+    OldCancelled --> Reconciled: обновляем план поездки
+    NewBooked --> Compensating: отмена старой не удалась
+    Compensating --> Reconciled: ручная проверка
+    Reconciled --> [*]
