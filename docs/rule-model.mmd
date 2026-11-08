@@ -1,0 +1,21 @@
+erDiagram
+    TRIP_CONTEXT ||--o{ BAGGAGE_RULE : "имеет"
+    TRIP_CONTEXT ||--o{ VISA_REQUIREMENT : "имеет"
+    TRIP_CONTEXT ||--o{ TIMEZONE_RULE : "имеет"
+
+    BAGGAGE_RULE {
+        string carrier "перевозчик"
+        string fare_class "класс тарифа"
+        bool interline_ok "interline разрешён"
+        bool recheck_required "нужна повторная регистрация"
+    }
+    VISA_REQUIREMENT {
+        string nationality "гражданство"
+        string country "страна"
+        string type "транзитная или въездная"
+    }
+    TIMEZONE_RULE {
+        string airport "аэропорт"
+        string iana_tz "IANA-таймзона"
+        int mct_minutes "MCT, минуты"
+    }
