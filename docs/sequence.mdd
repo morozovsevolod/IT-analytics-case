@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant SRC as API авиакомпании
+    participant POLL as Воркер опроса
+    participant NORM as Нормализатор
+    participant BUS as Поток событий
+    participant OP as Операционный потребитель
+    participant REV as Обратный индекс
+    participant REB as Оркестратор перебронирования
+    participant CV as Валидатор ограничений
+    participant NOTIF as Маршрутизатор уведомлений
+    participant USR as Пользователь (приложение / SMS)
+    participant BOOK as Провайдеры бронирования
+
+    SRC->>POLL: опрос статуса (по интервалу)
+    POLL->>POLL: сравнение с кэшем предыдущего состояния
+    POLL->>NORM: сырой payload изменения
+    NORM->>BUS: каноническое событие (dedupe_key, observed_at)
+    BUS->>OP: FLIGHT_DELAYED
+    OP->>REV: поиск flight_instance → поездки
+    REV-->>OP: затронутые trip_ids
+    OP->>REB: запустить перебронирование для поездки
+    REB->>REB: генерация кандидатов (поисковый индекс)
+    REB->>CV: проверка багажа / визы / таймзон / группы
+    CV-->>REB: Top-N валидных вариантов
+    REB->>BOOK: Удержание валидного варианта (живая проверка)
+    BOOK-->>REB: Удержание подтверждено
+    REB->>NOTIF: уведомить участников поездки
+    NOTIF->>USR: push / SMS / в приложении (с учётом присутствия)
+    USR-->>REB: принятие альтернативы
+    REB->>BOOK: бронирование нового варианта
+    REB->>BOOK: отмена старой брони
+    REB->>OP: обновление плана поездки
