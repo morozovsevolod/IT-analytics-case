@@ -1,4 +1,4 @@
-stateDiagram
+stateDiagram-v2
     state "Обнаружено нарушение" as Detected
     state "Кандидаты: минимальные изменения" as Candidates
     state "Прошло валидацию" as Validated
